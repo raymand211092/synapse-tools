@@ -26,7 +26,7 @@ TIME='180 days ago'
 # TODO add TZ to config
 UNIX_TIMESTAMP=$(date +%s%3N --date='TZ="UTC+2" '"$TIME")
 
-# TODO should be replaced by a mktemp call...
+# TODO should be replaced with a mktemp call...
 ROOMLIST=/tmp/roomlist.json
 ROOMLIST_PURGE=/tmp/rooms_to_purge.txt
 
@@ -37,6 +37,9 @@ TOKEN=$(psql -t -A -h localhost --dbname=$DBNAME --user=$DBUSER --command="selec
 ########################
 # Unused rooms cleanup #
 ########################
+
+echo " - Free space before"
+df -h
 
 echo ""
 echo " - Reading abandonned rooms list"
@@ -75,6 +78,15 @@ do
         curl --header "Authorization: Bearer $TOKEN" -XPOST -H "Content-Type: application/json" -d "{ \"delete_local_events\": false, \"purge_up_to_ts\": $UNIX_TIMESTAMP }" "${SYNAPSE_BASE}/_synapse/admin/v1/purge_history/$ROOM_NAME_TRIM"
 done
 
+#######################
+# Purge media history #
+#######################
+
+echo ""
+
+echo " - Purging media before $UNIX_TIMESTAMP"
+curl --header "Authorization: Bearer $TOKEN" -XPOST -H "Content-Type: application/json" -d "{ \"delete_local_events\": false, \"purge_up_to_ts\": $UNIX_TIMESTAMP }" "${SYNAPSE_BASE}/_synapse/admin/v1/media/${DOMAIN}/delete?before_ts=${UNIX_TIMESTAMP}"
+
 ###################
 # Cleanup DB
 ###################
@@ -82,8 +94,6 @@ done
 echo ""
 
 echo " - Cleaning database"
-echo " --- Free space before"
-df -h
 echo " --- Stoping server"
 service matrix-synapse stop
 echo " --- VACUUM"
@@ -92,5 +102,6 @@ echo " --- REINDEX"
 psql -t -A -h localhost --dbname=$DBNAME --user=$DBUSER --command="REINDEX DATABASE synapsedb;"
 echo " --- Restarting server"
 service matrix-synapse start
-echo " --- Free space after"
+
+echo " - Free space after"
 df -h
