@@ -16,10 +16,10 @@
 # - local Synapse service running as "matrix-synapse" (for stop/restart)
 
 SYNAPSE_BASE="http://localhost:8008"
-DOMAIN="neo.prk.st"
-ADMIN="@prk:neo.prk.st"
-DBNAME="synapsedb"
-DBUSER="matrixusr"
+DOMAIN="domain.tld"
+ADMIN="@admin:domain.tld"
+DBNAME="dbname"
+DBUSER="dbusr"
 
 # Max history to keep
 TIME='180 days ago'
