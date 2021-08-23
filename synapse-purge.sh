@@ -83,9 +83,13 @@ done
 #######################
 
 echo ""
-
 echo " - Purging media before $UNIX_TIMESTAMP"
 curl --header "Authorization: Bearer $TOKEN" -XPOST -H "Content-Type: application/json" -d "{ \"delete_local_events\": false, \"purge_up_to_ts\": $UNIX_TIMESTAMP }" "${SYNAPSE_BASE}/_synapse/admin/v1/media/${DOMAIN}/delete?before_ts=${UNIX_TIMESTAMP}"
+
+echo ""
+echo " - Purging cached media before $UNIX_TIMESTAMP"
+curl --header "Authorization: Bearer $TOKEN" -XPOST -H "Content-Type: application/json" -d "{ \"delete_local_events\": false, \"purge_up_to_ts\": $UNIX_TIMESTAMP }" "${SYNAPSE_BASE}/_synapse/admin/v1/purge_media_cache?before_ts=${UNIX_TIMESTAMP}"
+
 
 ###################
 # Cleanup DB
